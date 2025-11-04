@@ -17,8 +17,8 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # Parameters
-dbutils.widgets.text("catalog_name", "sselvan_banner", "Catalog Name")
-dbutils.widgets.text("schema_name", "oncology", "Schema Name")
+dbutils.widgets.text("catalog_name", "YOUR_CATALOG_NAME", "Catalog Name")
+dbutils.widgets.text("schema_name", "YOUR_SCHEMA_NAME", "Schema Name")
 
 catalog_name = dbutils.widgets.get("catalog_name")
 schema_name = dbutils.widgets.get("schema_name")

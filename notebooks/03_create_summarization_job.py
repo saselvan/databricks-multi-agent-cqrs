@@ -17,8 +17,8 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # Parameters - UPDATE WITH YOUR SP APPLICATION ID
-dbutils.widgets.text("summarization_sp_id", "<YOUR_SUMMARIZATION_SP_APPLICATION_ID>", "Summarization SP ID")
-dbutils.widgets.text("notebook_path", "/Workspace/Users/samuel.selvan@databricks.com/banner_oncology/summarization_job_notebook", "Summarization Notebook Path")
+dbutils.widgets.text("summarization_sp_id", "YOUR_SUMMARIZATION_SP_APPLICATION_ID", "Summarization SP ID")
+dbutils.widgets.text("notebook_path", "/Workspace/Users/<YOUR_EMAIL>/multi_agent_demo/summarization_job_notebook_REAL", "Summarization Notebook Path")
 
 summarization_sp_id = dbutils.widgets.get("summarization_sp_id")
 notebook_path = dbutils.widgets.get("notebook_path")

@@ -2,40 +2,97 @@
 # MAGIC %md
 # MAGIC # Deploy Oncology Multi-Agent System (Production Pattern)
 # MAGIC 
-# MAGIC ## Proper MLflow Pattern
+# MAGIC ## ⚠️ BEFORE YOU RUN: Update the Parameters Above! ⚠️
+# MAGIC 
+# MAGIC You should see 4 input boxes at the top of this notebook. Fill them in with YOUR values:
+# MAGIC 
+# MAGIC 1. **Catalog Name**: Your Unity Catalog name (from Step 6.1)
+# MAGIC 2. **Schema Name**: Your schema name (from Step 6.1)  
+# MAGIC 3. **Extraction Job ID**: Copy from Step 6.2 output
+# MAGIC 4. **Summarization Job ID**: Copy from Step 6.3 output
+# MAGIC 
+# MAGIC **If you don't see the input boxes**, run the cell below, then they'll appear.
+# MAGIC 
+# MAGIC ---
+# MAGIC 
+# MAGIC ## What This Notebook Does
+# MAGIC 
 # MAGIC Uses `code_paths` to bundle agent Python files directly into the MLflow model artifact.
 # MAGIC This is the **production-grade approach** recommended by Databricks.
 # MAGIC 
 # MAGIC ## Authentication Patterns Demonstrated
-# MAGIC 1. **Manual OAuth**: Dedicated SPs for Jobs API (solves Banner's session expiration issue)
+# MAGIC 1. **Manual OAuth**: Dedicated SPs for Jobs API (solves session expiration issues)
 # MAGIC 2. **Automatic Passthrough**: UC Volumes (zero credential management)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step 1: Configure Parameters
+# MAGIC 
+# MAGIC **👆 Fill in the input boxes above before continuing!**
+
+# COMMAND ----------
+
+# Create widgets (run this cell first to see the input boxes at the top)
+dbutils.widgets.text("catalog_name", "YOUR_CATALOG_NAME", "1. Catalog Name")
+dbutils.widgets.text("schema_name", "YOUR_SCHEMA_NAME", "2. Schema Name")
+dbutils.widgets.text("extraction_job_id", "PASTE_EXTRACTION_JOB_ID_HERE", "3. Extraction Job ID")
+dbutils.widgets.text("summarization_job_id", "PASTE_SUMMARIZATION_JOB_ID_HERE", "4. Summarization Job ID")
+
+print("✅ Widgets created! Look at the top of this notebook to fill in your values.")
+print("   Then run the next cell to validate your configuration.")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step 2: Validate Configuration
+
+# COMMAND ----------
+
+# Read widget values
+catalog_name = dbutils.widgets.get("catalog_name")
+schema_name = dbutils.widgets.get("schema_name")
+extraction_job_id = dbutils.widgets.get("extraction_job_id")
+summarization_job_id = dbutils.widgets.get("summarization_job_id")
+
+# Validate that defaults were changed
+errors = []
+if catalog_name == "YOUR_CATALOG_NAME":
+    errors.append("❌ Please update 'Catalog Name' parameter at the top")
+if schema_name == "YOUR_SCHEMA_NAME":
+    errors.append("❌ Please update 'Schema Name' parameter at the top")
+if "PASTE" in extraction_job_id or "JOB_ID" in extraction_job_id:
+    errors.append("❌ Please update 'Extraction Job ID' parameter at the top")
+if "PASTE" in summarization_job_id or "JOB_ID" in summarization_job_id:
+    errors.append("❌ Please update 'Summarization Job ID' parameter at the top")
+
+if errors:
+    for error in errors:
+        print(error)
+    raise ValueError("Please update the parameters at the top of the notebook before running!")
+
+# Set derived values
+MODEL_NAME = f"{catalog_name}.{schema_name}.oncology_coordinator"
+UC_VOLUME_PATH = f"/Volumes/{catalog_name}/{schema_name}/summaries"
+
+print("✅ Configuration validated!")
+print("=" * 80)
+print(f"Model: {MODEL_NAME}")
+print(f"Extraction Job: {extraction_job_id}")
+print(f"Summarization Job: {summarization_job_id}")
+print(f"UC Volume: {UC_VOLUME_PATH}")
+print("=" * 80)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step 3: Install Dependencies
 
 # COMMAND ----------
 
 # Install only PyPI packages (no wheel needed!)
 %pip install databricks-agents mlflow>=2.9.0 --quiet
 dbutils.library.restartPython()
-
-# COMMAND ----------
-
-# Configuration
-dbutils.widgets.text("catalog_name", "sselvan_banner", "Catalog Name")
-dbutils.widgets.text("schema_name", "oncology", "Schema Name")
-dbutils.widgets.text("extraction_job_id", "256785017981854", "Extraction Job ID")
-dbutils.widgets.text("summarization_job_id", "319195034335878", "Summarization Job ID")
-
-catalog_name = dbutils.widgets.get("catalog_name")
-schema_name = dbutils.widgets.get("schema_name")
-extraction_job_id = dbutils.widgets.get("extraction_job_id")
-summarization_job_id = dbutils.widgets.get("summarization_job_id")
-
-MODEL_NAME = f"{catalog_name}.{schema_name}.oncology_coordinator"
-UC_VOLUME_PATH = f"/Volumes/{catalog_name}/{schema_name}/summaries"
-
-print(f"Model: {MODEL_NAME}")
-print(f"Extraction Job: {extraction_job_id}")
-print(f"Summarization Job: {summarization_job_id}")
-print(f"UC Volume: {UC_VOLUME_PATH}")
 
 # COMMAND ----------
 

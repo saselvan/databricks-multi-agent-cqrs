@@ -17,8 +17,8 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # Parameters - UPDATE WITH YOUR SP APPLICATION ID
-dbutils.widgets.text("extraction_sp_id", "<YOUR_EXTRACTION_SP_APPLICATION_ID>", "Extraction SP ID")
-dbutils.widgets.text("notebook_path", "/Workspace/Users/samuel.selvan@databricks.com/banner_oncology/extraction_job_notebook", "Extraction Notebook Path")
+dbutils.widgets.text("extraction_sp_id", "YOUR_EXTRACTION_SP_APPLICATION_ID", "Extraction SP ID")
+dbutils.widgets.text("notebook_path", "/Workspace/Users/<YOUR_EMAIL>/multi_agent_demo/extraction_job_notebook_FIXED", "Extraction Notebook Path")
 
 extraction_sp_id = dbutils.widgets.get("extraction_sp_id")
 notebook_path = dbutils.widgets.get("notebook_path")
