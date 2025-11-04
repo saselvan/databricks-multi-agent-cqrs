@@ -321,11 +321,26 @@ Replace `<workspace-url>`, `<catalog>`, and `<schema>` with your values.
 **Via Databricks UI:**
 
 1. In the endpoint page, click the "Query Endpoint" tab
-2. Enter this query:
+2. Enter this JSON (or plain text if the UI accepts it):
+
+**JSON format** (always works):
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Extract /Volumes/<catalog>/<schema>/source_pdfs/patient_001_oncology_report.txt"
+    }
+  ]
+}
+```
+
+**Plain text** (if UI accepts it):
 ```
 Extract /Volumes/<catalog>/<schema>/source_pdfs/patient_001_oncology_report.txt
 ```
-4. Click "Send"
+
+3. Click "Send"
 
 **Expected response:**
 ```
@@ -334,6 +349,8 @@ Extract /Volumes/<catalog>/<schema>/source_pdfs/patient_001_oncology_report.txt
 
 This uses EXTRACTION_SP (manual OAuth) to trigger the job.
 ```
+
+---
 
 ### Via Python:
 
