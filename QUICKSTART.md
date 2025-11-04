@@ -263,24 +263,31 @@ For each job you created:
 
 ### 7.2 Grant UC Permissions via SQL
 
-Open a SQL Editor in Databricks and run:
+**📄 See `GRANT_PERMISSIONS.sql` for the full SQL script with comments.**
+
+Open a SQL Editor in Databricks and run the SQL commands from `GRANT_PERMISSIONS.sql` after replacing the placeholders:
+
+- `<CATALOG_NAME>`: Your catalog name (e.g., `test_demo`)
+- `<SCHEMA_NAME>`: Your schema name (e.g., `multi_agent`)
+- `<EXTRACTION_SP_CLIENT_ID>`: Your extraction SP's Application ID
+- `<SUMMARIZATION_SP_CLIENT_ID>`: Your summarization SP's Application ID
+
+**Quick reference:**
 
 ```sql
--- Replace <catalog>, <schema>, and <sp-client-id> with your values
-
 -- For EXTRACTION_SP:
-GRANT USE CATALOG ON CATALOG <catalog> TO `<extraction-sp-client-id>`;
-GRANT USE SCHEMA ON SCHEMA <catalog>.<schema> TO `<extraction-sp-client-id>`;
-GRANT READ VOLUME ON VOLUME <catalog>.<schema>.source_pdfs TO `<extraction-sp-client-id>`;
-GRANT SELECT, INSERT, MODIFY ON TABLE <catalog>.staging.extracted_documents TO `<extraction-sp-client-id>`;
-GRANT SELECT, INSERT ON TABLE <catalog>.<schema>.job_events TO `<extraction-sp-client-id>`;
+GRANT USE CATALOG ON CATALOG <CATALOG_NAME> TO `<EXTRACTION_SP_CLIENT_ID>`;
+GRANT USE SCHEMA ON SCHEMA <CATALOG_NAME>.<SCHEMA_NAME> TO `<EXTRACTION_SP_CLIENT_ID>`;
+GRANT READ VOLUME ON VOLUME <CATALOG_NAME>.<SCHEMA_NAME>.source_pdfs TO `<EXTRACTION_SP_CLIENT_ID>`;
+GRANT SELECT, INSERT ON TABLE <CATALOG_NAME>.staging.extracted_documents TO `<EXTRACTION_SP_CLIENT_ID>`;
+GRANT SELECT, INSERT ON TABLE <CATALOG_NAME>.<SCHEMA_NAME>.job_events TO `<EXTRACTION_SP_CLIENT_ID>`;
 
 -- For SUMMARIZATION_SP:
-GRANT USE CATALOG ON CATALOG <catalog> TO `<summarization-sp-client-id>`;
-GRANT USE SCHEMA ON SCHEMA <catalog>.<schema> TO `<summarization-sp-client-id>`;
-GRANT WRITE VOLUME ON VOLUME <catalog>.<schema>.summaries TO `<summarization-sp-client-id>`;
-GRANT SELECT, INSERT ON TABLE <catalog>.staging.summaries TO `<summarization-sp-client-id>`;
-GRANT SELECT, INSERT ON TABLE <catalog>.<schema>.job_events TO `<summarization-sp-client-id>`;
+GRANT USE CATALOG ON CATALOG <CATALOG_NAME> TO `<SUMMARIZATION_SP_CLIENT_ID>`;
+GRANT USE SCHEMA ON SCHEMA <CATALOG_NAME>.<SCHEMA_NAME> TO `<SUMMARIZATION_SP_CLIENT_ID>`;
+GRANT WRITE VOLUME ON VOLUME <CATALOG_NAME>.<SCHEMA_NAME>.summaries TO `<SUMMARIZATION_SP_CLIENT_ID>`;
+GRANT SELECT, INSERT ON TABLE <CATALOG_NAME>.staging.summaries TO `<SUMMARIZATION_SP_CLIENT_ID>`;
+GRANT SELECT, INSERT ON TABLE <CATALOG_NAME>.<SCHEMA_NAME>.job_events TO `<SUMMARIZATION_SP_CLIENT_ID>`;
 ```
 
 ---

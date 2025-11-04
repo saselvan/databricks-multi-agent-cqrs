@@ -21,7 +21,7 @@ import time
 import os
 import sys
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.service import catalog, jobs, compute, iam
+from databricks.sdk.service import catalog, jobs, compute, iam, workspace
 from databricks.sdk.service.catalog import VolumeType
 import json
 
@@ -198,8 +198,8 @@ class EndToEndTest:
                 
                 self.w.workspace.import_(
                     path=workspace_path,
-                    format=catalog.ImportFormat.SOURCE,
-                    language=catalog.Language.PYTHON,
+                    format=workspace.ImportFormat.SOURCE,
+                    language=workspace.Language.PYTHON,
                     content=content_b64,
                     overwrite=True
                 )
