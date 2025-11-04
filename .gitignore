@@ -1,0 +1,116 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Databricks
+.databricks/
+*.db-credentials
+*.dbc
+
+# Secrets and credentials
+*.pem
+*.key
+*.env
+.env.local
+secrets.json
+credentials.json
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+check_*.py
+test_*.py
+*.sql
+deploy_*.py
+run_*.py
+verify_*.py
+upload_*.py
+create_*.py
+update_*.py
+monitor_*.py
+quick_*.py
+grant_*.py
+get_*.py
+diagnose_*.py
+final_*.py
+fix_*.py
+recreate_*.py
+redeploy_*.py
+rerun_*.py
+
+# Images and binaries
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.whl
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Internal documentation (useful locally, not for GitHub)
+ELEVATOR_PITCH.md
+*BANNER*.md
+QUICKSTART_BANNER.md
+COMPLETE*.md
+DEPLOYMENT_SUCCESS.md
+DEPLOY_REAL_PROCESSING_NOW.md
+WHATS_READY_NOW.md
+REAL_PROCESSING_READY.md
+EASIER_WAY.md
+IMPLEMENTATION_PLAN.md
+COMMENTED_NOTEBOOKS_STATUS.md
+RUN_THIS_NOW.md
+EXECUTIVE_SUMMARY.md
+EXECUTIVE_2PAGER.md
+DOCUMENTATION_COMPLETE.md
+IMPLEMENTATION_COMPLETE.md
+COMPREHENSIVE_FIX_PLAN.md
+
+# Keep these specific files
+!setup.py
+!notebooks/*.py
+!agents/*.py
