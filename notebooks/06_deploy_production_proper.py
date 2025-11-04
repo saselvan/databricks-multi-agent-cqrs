@@ -114,7 +114,10 @@ print(f"Agent files directory: {agent_dir}")
 with open(f"{agent_dir}/extraction_agent.py", "w") as f:
     f.write("""
 import os
+import uuid
+from datetime import datetime
 from databricks.sdk import WorkspaceClient
+from pyspark.sql import SparkSession
 
 class ExtractionAgent:
     \"\"\"Triggers PDF extraction jobs using EXTRACTION_SP (manual OAuth)\"\"\"
@@ -122,18 +125,48 @@ class ExtractionAgent:
         self.client_id = os.environ.get("EXTRACTION_SP_CLIENT_ID")
         self.client_secret = os.environ.get("EXTRACTION_SP_CLIENT_SECRET")
         self.host = os.environ.get("DATABRICKS_HOST")
+        self.catalog_name = os.environ.get("CATALOG_NAME")
+        self.schema_name = os.environ.get("SCHEMA_NAME")
     
     def trigger_extraction(self, document_path, job_id):
-        \"\"\"Trigger extraction job with manual OAuth\"\"\"
+        \"\"\"Trigger extraction job with manual OAuth and log JobStarted event\"\"\"
         w = WorkspaceClient(
             host=self.host,
             client_id=self.client_id,
             client_secret=self.client_secret
         )
+        
+        # Trigger the job
         run = w.jobs.run_now(
             job_id=int(job_id),
             notebook_params={"document_path": document_path}
         )
+        
+        # Log JobStarted event to CQRS table
+        try:
+            spark = SparkSession.builder.getOrCreate()
+            event_id = str(uuid.uuid4())
+            
+            spark.sql(f\"\"\"
+                INSERT INTO {self.catalog_name}.{self.schema_name}.job_events
+                (event_id, event_type, run_id, agent, sp_used, triggered_by, 
+                 timestamp, status, details)
+                VALUES (
+                    '{event_id}',
+                    'JobStarted',
+                    {run.run_id},
+                    'extraction_agent',
+                    '{self.client_id}',
+                    'user_via_agent',
+                    current_timestamp(),
+                    'STARTED',
+                    '{{\\"document_path\\": \\"{document_path}\\", \\"job_id\\": \\"{job_id}\\"}}'
+                )
+            \"\"\")
+            print(f"✅ Logged JobStarted event for run {run.run_id}")
+        except Exception as e:
+            print(f"⚠️  Could not log JobStarted event (non-fatal): {e}")
+        
         return run.run_id
 """)
 
@@ -452,6 +485,10 @@ deployment_info = agents.deploy(
         # Job IDs
         "EXTRACTION_JOB_ID": extraction_job_id,
         "SUMMARIZATION_JOB_ID": summarization_job_id,
+        
+        # Catalog and Schema (for CQRS event logging)
+        "CATALOG_NAME": catalog_name,
+        "SCHEMA_NAME": schema_name,
         
         # UC Volume path for file storage
         "UC_VOLUME_PATH": UC_VOLUME_PATH,

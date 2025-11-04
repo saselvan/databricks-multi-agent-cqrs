@@ -29,6 +29,47 @@ print(f"👤 Triggered by: {user_id}")
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ## Log JobStarted Event (CQRS)
+# MAGIC 
+# MAGIC Log immediately at job start for full audit trail
+
+# Get run ID
+import re
+import uuid as uuid_lib
+
+run_id = dbutils.notebook.entry_point.getDbutils() \
+    .notebook().getContext().currentRunId().get()
+run_id_str = str(run_id)
+run_id_int = int(re.search(r'\d+', run_id_str).group())
+
+print(f"🆔 Run ID: {run_id_int}")
+
+# Log JobStarted event
+try:
+    event_id = str(uuid_lib.uuid4())
+    spark.sql(f"""
+        INSERT INTO {catalog_name}.{schema_name}.job_events
+        (event_id, event_type, run_id, agent, sp_used, triggered_by, 
+         timestamp, status, details)
+        VALUES (
+            '{event_id}',
+            'JobStarted',
+            {run_id_int},
+            'extraction_agent',
+            'EXTRACTION_SP',
+            '{user_id}',
+            current_timestamp(),
+            'STARTED',
+            '{{"document_path": "{document_path}"}}'
+        )
+    """)
+    print(f"✅ Logged JobStarted event (ID: {event_id})")
+except Exception as e:
+    print(f"⚠️  Could not log JobStarted event (non-fatal): {e}")
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC ## Extract REAL Document Content
 # MAGIC 
 # MAGIC **REAL PROCESSING:** Reads actual file from UC Volumes
