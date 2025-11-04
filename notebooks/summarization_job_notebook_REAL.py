@@ -33,6 +33,8 @@ print(f"👤 Triggered by: {triggered_by}")
 # MAGIC 
 # MAGIC **Security Note:** Only SUMMARIZATION_SP has read access to staging.extracted_documents
 
+# COMMAND ----------
+
 from datetime import datetime
 import traceback
 import json
@@ -80,6 +82,8 @@ except Exception as e:
 # MAGIC **REAL PROCESSING:** Calls Databricks Foundation Model API (Llama 3.1 70B Instruct)
 # MAGIC 
 # MAGIC This is NOT simulated - it makes an actual API call to the LLM!
+
+# COMMAND ----------
 
 import json
 from databricks.sdk import WorkspaceClient
@@ -161,6 +165,8 @@ except Exception as e:
 # MAGIC 
 # MAGIC **Security Note:** Only SUMMARIZATION_SP has write access to staging.summaries
 
+# COMMAND ----------
+
 try:
     # Get current run ID
     run_id = dbutils.notebook.entry_point.getDbutils() \
@@ -195,6 +201,8 @@ except Exception as e:
 
 # MAGIC %md
 # MAGIC ## Self-Report to CQRS Event Store
+
+# COMMAND ----------
 
 try:
     # Get run ID
