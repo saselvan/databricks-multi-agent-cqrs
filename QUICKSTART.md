@@ -294,11 +294,34 @@ GRANT SELECT, INSERT ON TABLE <CATALOG_NAME>.<SCHEMA_NAME>.job_events TO `<SUMMA
 
 ## Step 8: Test the Agent (5 minutes)
 
-### Via Databricks UI:
+### 8.1 Find Your Serving Endpoint
 
-1. Go to the endpoint URL (from step 6.5)
-2. Click "Query Endpoint" tab
-3. Enter this query:
+**Option A: Use the URL from deployment output** (Step 6.5)
+- The deployment notebook shows: `🔗 View Endpoint: <endpoint-url>`
+- Click that URL
+
+**Option B: Navigate in the UI**
+1. Click **"Serving"** in the left sidebar (or go to **Machine Learning** → **Serving**)
+2. Look for your endpoint: `agents_<catalog>-<schema>-oncology_coordinator`
+   - Example: `agents_mytest-demo-oncology_coordinator`
+3. Click on the endpoint name
+
+**Option C: Direct URL pattern**
+```
+https://<workspace-url>/ml/endpoints/agents_<catalog>-<schema>-oncology_coordinator
+```
+Replace `<workspace-url>`, `<catalog>`, and `<schema>` with your values.
+
+**Wait for "Ready" status** (green checkmark) - may take 3-5 minutes after deployment.
+
+---
+
+### 8.2 Query the Agent
+
+**Via Databricks UI:**
+
+1. In the endpoint page, click the "Query Endpoint" tab
+2. Enter this query:
 ```
 Extract /Volumes/<catalog>/<schema>/source_pdfs/patient_001_oncology_report.txt
 ```

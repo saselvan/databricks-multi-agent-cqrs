@@ -260,17 +260,35 @@ This is a reference implementation. Future additions could include:
 
 ## 🐛 Troubleshooting
 
+### "Can't find my serving endpoint"
+**Solution**: Navigate to find your deployed agent:
+
+1. **UI Navigation**: Click **"Serving"** in left sidebar → Look for `agents_<catalog>-<schema>-oncology_coordinator`
+2. **Direct URL**: `https://<workspace-url>/ml/endpoints/agents_<catalog>-<schema>-oncology_coordinator`
+3. **Check deployment**: Review the output of `06_deploy_production_proper.py` for the endpoint URL
+
+**Wait for "Ready" status** (green checkmark) before testing - may take 3-5 minutes after deployment.
+
 ### "File not found" in UC Volume
 **Cause**: Job cluster missing `data_security_mode: SINGLE_USER`  
-**Solution**: Update job cluster configuration
+**Solution**: Update job cluster configuration to include:
+```python
+data_security_mode=compute.DataSecurityMode.SINGLE_USER
+```
 
 ### "PERMISSION_DENIED" on UC Volume
 **Cause**: Missing catalog/schema permissions  
-**Solution**: Grant `USE CATALOG` and `USE SCHEMA` first
+**Solution**: Grant permissions in this order:
+1. `GRANT USE CATALOG ON CATALOG <catalog> TO <sp>`
+2. `GRANT USE SCHEMA ON SCHEMA <catalog>.<schema> TO <sp>`
+3. `GRANT READ/WRITE VOLUME ON VOLUME <catalog>.<schema>.<volume> TO <sp>`
 
 ### Jobs API authentication fails
-**Cause**: Incorrect SP credentials  
-**Solution**: Regenerate secrets and update Databricks Secrets
+**Cause**: Incorrect SP credentials or environment variables  
+**Solution**: 
+1. Verify secrets: `databricks secrets list-secrets <scope>`
+2. Check environment variables use custom names (`JOBS_API_*` not `DATABRICKS_*`)
+3. Regenerate SP secrets if needed
 
 See `SUCCESS_SUMMARY.md` for detailed troubleshooting.
 
