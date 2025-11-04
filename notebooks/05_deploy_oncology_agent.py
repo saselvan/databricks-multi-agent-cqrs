@@ -77,7 +77,6 @@ dbutils.widgets.text("catalog", "sselvan_banner", "Catalog")
 dbutils.widgets.text("schema", "agent_demo", "Schema")
 dbutils.widgets.text("vector_search_endpoint", "one-env-shared-endpoint-1", "Vector Search Endpoint")
 dbutils.widgets.text("refresh_job_id", "343083600730867", "Refresh Job ID")
-dbutils.widgets.text("workspace_url", "", "Workspace URL (leave empty to auto-detect)")
 
 CATALOG = dbutils.widgets.get("catalog")
 SCHEMA = dbutils.widgets.get("schema")
@@ -86,7 +85,6 @@ MODEL_NAME = f"{CATALOG}.{SCHEMA}.support_agent_final"
 VECTOR_SEARCH_ENDPOINT = dbutils.widgets.get("vector_search_endpoint")
 VECTOR_SEARCH_INDEX = f"{CATALOG}.{SCHEMA}.product_docs_index"
 REFRESH_JOB_ID = dbutils.widgets.get("refresh_job_id")
-workspace_url_param = dbutils.widgets.get("workspace_url")
 
 print(f"Deploying: {MODEL_NAME}")
 print(f"Using Agent Framework for automatic auth handling")
@@ -410,25 +408,30 @@ print(f"✅ Model registered: {MODEL_NAME} version {model_version.version}")
 # COMMAND ----------
 
 from databricks import agents
+import os
 
 print("🚀 Deploying agent with Agent Framework...")
 
-# Get workspace URL
-# NOTE: In serverless, auto-detection may return wrong region (e.g., Oregon instead of your actual region)
-# If this happens, set workspace_url widget parameter manually
-if workspace_url_param:
-    workspace_url = workspace_url_param
-    print(f"✅ Using workspace URL from widget parameter: {workspace_url}")
-else:
+# Get workspace URL using SDK's recommended pattern
+# The SDK checks (in order):
+#   1. DATABRICKS_HOST environment variable
+#   2. .databrickscfg file  
+#   3. Notebook context
+try:
+    # Use WorkspaceClient auto-detection (respects DATABRICKS_HOST env var)
+    from databricks.sdk import WorkspaceClient
+    temp_client = WorkspaceClient()
+    workspace_url = temp_client.config.host
+    print(f"✅ WorkspaceClient auto-detected: {workspace_url}")
+except Exception as e:
+    print(f"⚠️ WorkspaceClient auto-detection failed: {e}")
+    # Fallback to dbutils (may return wrong region in serverless)
     try:
         workspace_url = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiUrl().get()
-        print(f"✅ Auto-detected workspace URL: {workspace_url}")
-        print(f"⚠️  If this URL is incorrect (common in serverless), set the 'workspace_url' widget parameter")
+        print(f"⚠️ Using dbutils fallback: {workspace_url}")
+        print(f"   WARNING: In serverless, this may return wrong region")
     except:
-        raise ValueError(
-            "❌ Could not detect workspace URL. Please set the 'workspace_url' widget parameter.\n"
-            "   Example: https://your-workspace.cloud.databricks.com"
-        )
+        raise ValueError("❌ Could not detect workspace URL. Set DATABRICKS_HOST environment variable.")
 
 # Resolve secrets at deploy time
 print("\n🔐 Resolving secrets at deploy time...")
