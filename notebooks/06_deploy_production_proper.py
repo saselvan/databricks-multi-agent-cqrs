@@ -97,6 +97,29 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ## Re-read Configuration After Python Restart
+# MAGIC 
+# MAGIC **CRITICAL:** After `restartPython()`, all variables are cleared. Must re-read widgets.
+
+# COMMAND ----------
+
+# Re-read widget values (they were cleared by restartPython)
+catalog_name = dbutils.widgets.get("catalog_name")
+schema_name = dbutils.widgets.get("schema_name")
+extraction_job_id = dbutils.widgets.get("extraction_job_id")
+summarization_job_id = dbutils.widgets.get("summarization_job_id")
+
+MODEL_NAME = f"{catalog_name}.{schema_name}.oncology_coordinator"
+UC_VOLUME_PATH = f"/Volumes/{catalog_name}/{schema_name}/summaries"
+
+print("✅ Re-read configuration after Python restart:")
+print(f"   Model: {MODEL_NAME}")
+print(f"   Extraction Job: {extraction_job_id}")
+print(f"   Summarization Job: {summarization_job_id}")
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC ## Write Agent Code to Local Files
 # MAGIC 
 # MAGIC We'll write each agent class to a separate Python file, then use `code_paths` to bundle them.
