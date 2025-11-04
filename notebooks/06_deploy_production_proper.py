@@ -112,10 +112,31 @@ summarization_job_id = dbutils.widgets.get("summarization_job_id")
 MODEL_NAME = f"{catalog_name}.{schema_name}.oncology_coordinator"
 UC_VOLUME_PATH = f"/Volumes/{catalog_name}/{schema_name}/summaries"
 
+# Auto-discover SQL Warehouse for CQRS event logging from agent
+from databricks.sdk import WorkspaceClient
+w = WorkspaceClient()
+warehouses = list(w.warehouses.list())
+
+# Prefer serverless, fall back to any available
+sql_warehouse_id = None
+for wh in warehouses:
+    if wh.warehouse_type and "SERVERLESS" in str(wh.warehouse_type):
+        sql_warehouse_id = wh.id
+        print(f"✅ Found serverless SQL warehouse: {wh.name} ({wh.id})")
+        break
+
+if not sql_warehouse_id and warehouses:
+    sql_warehouse_id = warehouses[0].id
+    print(f"ℹ️  Using first available warehouse: {warehouses[0].name} ({warehouses[0].id})")
+
+if not sql_warehouse_id:
+    raise ValueError("No SQL Warehouse found! Agent needs a warehouse to log CQRS events.")
+
 print("✅ Re-read configuration after Python restart:")
 print(f"   Model: {MODEL_NAME}")
 print(f"   Extraction Job: {extraction_job_id}")
 print(f"   Summarization Job: {summarization_job_id}")
+print(f"   SQL Warehouse: {sql_warehouse_id}")
 
 # COMMAND ----------
 
@@ -140,7 +161,6 @@ import os
 import uuid
 from datetime import datetime
 from databricks.sdk import WorkspaceClient
-from pyspark.sql import SparkSession
 
 class ExtractionAgent:
     \"\"\"Triggers PDF extraction jobs using EXTRACTION_SP (manual OAuth)\"\"\"
@@ -150,6 +170,7 @@ class ExtractionAgent:
         self.host = os.environ.get("DATABRICKS_HOST")
         self.catalog_name = os.environ.get("CATALOG_NAME")
         self.schema_name = os.environ.get("SCHEMA_NAME")
+        self.warehouse_id = os.environ.get("SQL_WAREHOUSE_ID")
     
     def trigger_extraction(self, document_path, job_id):
         \"\"\"Trigger extraction job with manual OAuth and log JobStarted event\"\"\"
@@ -165,12 +186,14 @@ class ExtractionAgent:
             notebook_params={"document_path": document_path}
         )
         
-        # Log JobStarted event to CQRS table
+        # Log JobStarted event to CQRS table using SQL Statement Execution API
+        # ✅ This works from serving endpoints (unlike SparkSession which doesn't exist there)
         try:
-            spark = SparkSession.builder.getOrCreate()
             event_id = str(uuid.uuid4())
+            timestamp = datetime.now().isoformat()
+            details = f'{{\\"document_path\\": \\"{document_path}\\", \\"job_id\\": \\"{job_id}\\"}}'
             
-            spark.sql(f\"\"\"
+            sql = f\"\"\"
                 INSERT INTO {self.catalog_name}.{self.schema_name}.job_events
                 (event_id, event_type, run_id, agent, sp_used, triggered_by, 
                  timestamp, status, details)
@@ -181,12 +204,19 @@ class ExtractionAgent:
                     'extraction_agent',
                     '{self.client_id}',
                     'user_via_agent',
-                    current_timestamp(),
+                    '{timestamp}',
                     'STARTED',
-                    '{{\\"document_path\\": \\"{document_path}\\", \\"job_id\\": \\"{job_id}\\"}}'
+                    '{details}'
                 )
-            \"\"\")
-            print(f"✅ Logged JobStarted event for run {run.run_id}")
+            \"\"\"
+            
+            # Execute using SQL Statement Execution API (works from serving endpoints)
+            w.statement_execution.execute_statement(
+                statement=sql,
+                warehouse_id=self.warehouse_id,
+                wait_timeout="30s"
+            )
+            print(f"✅ Logged JobStarted event for run {run.run_id} via SQL Warehouse")
         except Exception as e:
             print(f"⚠️  Could not log JobStarted event (non-fatal): {e}")
         
@@ -513,12 +543,12 @@ deployment_info = agents.deploy(
         "CATALOG_NAME": catalog_name,
         "SCHEMA_NAME": schema_name,
         
-        # UC Volume path for file storage
-        "UC_VOLUME_PATH": UC_VOLUME_PATH,
+        # SQL Warehouse for CQRS event logging from serving endpoint
+        # ✅ Agents use SQL Statement Execution API (not Spark) to log events
+        "SQL_WAREHOUSE_ID": sql_warehouse_id,
         
-        # Catalog and Schema for CQRS tables
-        "CATALOG_NAME": catalog_name,
-        "SCHEMA_NAME": schema_name
+        # UC Volume path for file storage
+        "UC_VOLUME_PATH": UC_VOLUME_PATH
     },
     scale_to_zero=True
 )
