@@ -33,6 +33,8 @@ print(f"👤 Triggered by: {user_id}")
 # MAGIC 
 # MAGIC Log immediately at job start for full audit trail
 
+# COMMAND ----------
+
 # Get run ID
 import re
 import uuid as uuid_lib
