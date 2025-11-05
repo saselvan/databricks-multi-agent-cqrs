@@ -122,3 +122,11 @@ DEPLOYMENT_GUIDE.md
 
 EXECUTIVE_SUMMARY_FOR_MANAGER.md
 GITHUB_AUTH_SETUP.md
+
+# All internal test and documentation files
+GITHUB_SETUP.md
+TESTING_NOTES.md
+minimal_extraction_test.py
+*_COMMENTED.py
+00_upload_sample_pdf.py
+
