@@ -114,3 +114,9 @@ COMPREHENSIVE_FIX_PLAN.md
 !setup.py
 !notebooks/*.py
 !agents/*.py
+
+# Internal documentation (not for public GitHub)
+SUCCESS_SUMMARY.md
+DEPLOYMENT_GUIDE.md
+*COMMENTED*.py
+
