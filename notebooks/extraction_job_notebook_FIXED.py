@@ -157,6 +157,8 @@ except Exception as e:
 # MAGIC 
 # MAGIC **Critical for async pattern:** Job writes completion event to Delta
 
+# COMMAND ----------
+
 import json
 import uuid as uuid_lib
 
