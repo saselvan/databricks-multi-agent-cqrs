@@ -501,5 +501,5 @@ Each agent uses different SP, logged in CQRS events
 
 ---
 
-**This is how Banner's oncology workflow is orchestrated with CQRS!** 🚀
+**This is how Customer's oncology workflow is orchestrated with CQRS!** 🚀
 

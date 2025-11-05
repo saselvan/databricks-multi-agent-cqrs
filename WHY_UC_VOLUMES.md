@@ -120,7 +120,7 @@ agent.upload_summary(...)  # Works but not best practice
 class FileStorageAgent:
     def __init__(self):
         # Path: /Volumes/{catalog}/{schema}/{volume}/
-        self.storage_path = "/Volumes/sselvan_banner/oncology_cqrs/summaries/"
+        self.storage_path = "/Volumes/your_catalog/your_schema_cqrs/summaries/"
         # No credentials needed - automatic passthrough! ✅
     
     def upload_summary(self, summary, patient_id, ...):
@@ -135,8 +135,8 @@ class FileStorageAgent:
 # File Storage Agent
 class FileStorageAgent:
     def __init__(self):
-        # Path: /dbfs/oncology_summaries/
-        self.storage_path = "/dbfs/oncology_summaries/"
+        # Path: /dbfs/your_schema_summaries/
+        self.storage_path = "/dbfs/your_schema_summaries/"
         # Works but not best practice ⚠️
     
     def upload_summary(self, summary, patient_id, ...):
@@ -152,7 +152,7 @@ class FileStorageAgent:
 
 **Phase 1 (Demo):**
 ```
-Summaries → UC Volume (/Volumes/sselvan_banner/oncology_cqrs/summaries/)
+Summaries → UC Volume (/Volumes/your_catalog/your_schema_cqrs/summaries/)
 ```
 
 **Phase 2 (Production):**
@@ -169,7 +169,7 @@ Summaries → Banner's SharePoint (same agent interface, just swap the storage b
 ### 1. Query Files with SQL
 ```sql
 -- List all summary files
-LIST '/Volumes/sselvan_banner/oncology_cqrs/summaries/';
+LIST '/Volumes/your_catalog/your_schema_cqrs/summaries/';
 
 -- Read file metadata
 SELECT * FROM information_schema.files
@@ -179,11 +179,11 @@ WHERE file_path LIKE '%/summaries/%';
 ### 2. Permissions Management
 ```sql
 -- Grant read access to specific users
-GRANT READ FILES ON VOLUME sselvan_banner.oncology_cqrs.summaries 
+GRANT READ FILES ON VOLUME your_catalog.your_schema_cqrs.summaries 
 TO `clinician@banner.com`;
 
 -- Revoke write access
-REVOKE WRITE FILES ON VOLUME sselvan_banner.oncology_cqrs.summaries 
+REVOKE WRITE FILES ON VOLUME your_catalog.your_schema_cqrs.summaries 
 FROM `extraction-sp`;
 ```
 
