@@ -252,6 +252,8 @@ except Exception as e:
 # MAGIC %md
 # MAGIC ## Summary
 
+# COMMAND ----------
+
 print("\n" + "="*80)
 print("✅ REAL LLM SUMMARIZATION COMPLETE")
 print("="*80)

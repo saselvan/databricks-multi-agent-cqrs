@@ -76,6 +76,8 @@ except Exception as e:
 # MAGIC 
 # MAGIC **REAL PROCESSING:** Reads actual file from UC Volumes
 
+# COMMAND ----------
+
 from datetime import datetime
 import traceback
 import os
@@ -112,6 +114,8 @@ except Exception as e:
 # MAGIC ## Write to Staging Table
 # MAGIC 
 # MAGIC **Security Note:** Only EXTRACTION_SP has write access to staging.extracted_documents
+
+# COMMAND ----------
 
 from pyspark.sql import functions as F
 
@@ -216,6 +220,8 @@ except Exception as e:
 
 # MAGIC %md
 # MAGIC ## Summary
+
+# COMMAND ----------
 
 print("\n" + "="*80)
 print("✅ REAL PDF EXTRACTION COMPLETE")
